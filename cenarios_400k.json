@@ -1,0 +1,45 @@
+{
+  "REACHABILITY": {
+    "scenario": "REACHABILITY",
+    "description": "Reachability Scenario - 400k model",
+    "media_quality": "400k",
+    "targets": {
+      "pods_active": 0,
+      "pods_failing": 15,
+      "cpu_percent": 1.5,
+      "memory_percent": 4.0,
+      "response_time_ms": 2500.0,
+      "error_rate": 95.0
+    }
+  },
+  "RESPONSE_TIME": {
+    "scenario": "RESPONSE_TIME",
+    "description": "Response Time Scenario - 400k model",
+    "media_quality": "400k",
+    "targets": {
+      "pods_active": 2,
+      "pods_failing": 0,
+      "cpu_percent": 18.5,
+      "memory_percent": 19.2,
+      "response_time_ms": 79900.0,
+      "error_rate": 0.2,
+      "p95_latency": 115056.0,
+      "p99_latency": 159800.0
+    }
+  },
+  "LOAD": {
+    "scenario": "LOAD",
+    "description": "Load Scenario - 400k model",
+    "media_quality": "400k",
+    "targets": {
+      "pods_active": 8,
+      "pods_failing": 0,
+      "cpu_percent": 68.7,
+      "memory_percent": 70.1,
+      "response_time_ms": 1278.4,
+      "error_rate": 2.2,
+      "requests_per_second": 29.75,
+      "concurrent_connections": 212.5
+    }
+  }
+}

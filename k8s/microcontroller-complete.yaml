@@ -1,0 +1,849 @@
+# Microcontroller Complete Manifest - CORRIGIDO
+# Versões mais recentes dos microserviços
+# analyzer: v17.0.2, executor: v17.0.2, knowledge: v17.0.2, llm-service: v17.0.2
+# monitor: v17.0.17, planner: v17.0.2, load-generator: v17.0.2
+
+---
+# ServiceAccounts
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: executor-sa
+  namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: monitor-sa
+  namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+---
+# ClusterRoles
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: executor-role
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitor-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "nodes", "services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["nodes", "pods"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ingress-nginx-role
+rules:
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingressclasses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "secrets", "configmaps"]
+  verbs: ["get", "list", "watch"]
+---
+# ClusterRoleBindings
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: executor-binding
+subjects:
+- kind: ServiceAccount
+  name: executor-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: executor-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: monitor-binding
+subjects:
+- kind: ServiceAccount
+  name: monitor-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: monitor-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ingress-nginx-binding
+subjects:
+- kind: ServiceAccount
+  name: ingress-nginx
+  namespace: ingress-nginx
+roleRef:
+  kind: ClusterRole
+  name: ingress-nginx-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: default
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+# Kube-ZNN Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-znn-simple-fixed
+  namespace: default
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: kube-znn-simple-fixed
+  template:
+    metadata:
+      labels:
+        app: kube-znn-simple-fixed
+    spec:
+      containers:
+      - name: kube-znn
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          # Criar arquivos de health check
+          echo "healthy" > /usr/share/nginx/html/health
+          echo "ready" > /usr/share/nginx/html/ready
+          
+          # Criar endpoint de teste
+          cat > /usr/share/nginx/html/news.php << 'EOF'
+          <?php
+          echo "ZNN News Service - " . date('Y-m-d H:i:s') . "\n";
+          echo "Response time test endpoint\n";
+          ?>
+          EOF
+          
+          # Configurar nginx
+          cat > /etc/nginx/conf.d/default.conf << EOF
+          server {
+              listen 80;
+              server_name localhost;
+              root /usr/share/nginx/html;
+              index index.html index.php;
+              
+              location / {
+                  try_files \$uri \$uri/ /index.html;
+              }
+              
+              location /news.php {
+                  add_header Content-Type text/plain;
+                  return 200 "ZNN News Service - Response time test endpoint\n";
+              }
+              
+              location /health {
+                  add_header Content-Type text/plain;
+                  return 200 "healthy\n";
+              }
+              
+              location /ready {
+                  add_header Content-Type text/plain;
+                  return 200 "ready\n";
+              }
+          }
+          EOF
+          
+          # Iniciar nginx
+          nginx -g "daemon off;"
+        env:
+        - name: SIMULATE_CONNECTIVITY_FAILURES
+          value: "false"
+        - name: FAILURE_RATE
+          value: "0"
+        - name: ARTIFICIAL_DELAY
+          value: "0"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 2
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3
+          timeoutSeconds: 1
+          failureThreshold: 2
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
+---
+# Kube-ZNN Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-znn-simple-fixed
+  namespace: default
+spec:
+  selector:
+    app: kube-znn-simple-fixed
+  ports:
+  - port: 80
+    targetPort: 80
+---
+# Analyzer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyzer
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analyzer
+  template:
+    metadata:
+      labels:
+        app: analyzer
+    spec:
+      containers:
+      - name: analyzer
+        image: analyzer:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Analyzer Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: analyzer
+  namespace: default
+spec:
+  selector:
+    app: analyzer
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Executor Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: executor
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: executor
+  template:
+    metadata:
+      labels:
+        app: executor
+    spec:
+      serviceAccountName: executor-sa
+      containers:
+      - name: executor
+        image: executor:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Executor Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: executor
+  namespace: default
+spec:
+  selector:
+    app: executor
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Knowledge Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowledge
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: knowledge
+  template:
+    metadata:
+      labels:
+        app: knowledge
+    spec:
+      containers:
+      - name: knowledge
+        image: knowledge:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Knowledge Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: knowledge
+  namespace: default
+spec:
+  selector:
+    app: knowledge
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# LLM Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-service
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-service
+  template:
+    metadata:
+      labels:
+        app: llm-service
+    spec:
+      containers:
+      - name: llm-service
+        image: llm-service:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: HF_API_TOKEN
+          value: "hf_dummy_token"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# LLM Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+  namespace: default
+spec:
+  selector:
+    app: llm-service
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Monitor Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitor
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitor
+  template:
+    metadata:
+      labels:
+        app: monitor
+    spec:
+      serviceAccountName: monitor-sa
+      containers:
+        - name: monitor
+          image: monitor:v17.1.15
+          ports:
+          - containerPort: 8000
+          env:
+          - name: REDIS_HOST
+            value: "redis"
+          - name: REDIS_PORT
+            value: "6379"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+# Monitor Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitor
+  namespace: default
+spec:
+  selector:
+    app: monitor
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Planner Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planner
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: planner
+  template:
+    metadata:
+      labels:
+        app: planner
+    spec:
+      containers:
+      - name: planner
+        image: planner:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Planner Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: planner
+  namespace: default
+spec:
+  selector:
+    app: planner
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Load Generator Job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: load-generator
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+        - name: load-generator
+          image: load-generator:v17.1.15
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+      restartPolicy: Never
+---
+# Load Generator Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: load-generator
+  namespace: default
+spec:
+  selector:
+    app: load-generator
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Metrics Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-server
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics-server
+  template:
+    metadata:
+      labels:
+        app: metrics-server
+    spec:
+      serviceAccountName: metrics-server
+      containers:
+      - name: metrics-server
+        image: registry.k8s.io/metrics-server/metrics-server:v0.6.4
+        args:
+        - --cert-dir=/tmp
+        - --secure-port=10250
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+        - --kubelet-use-node-status-port
+        - --metric-resolution=15s
+        - --kubelet-insecure-tls
+        ports:
+        - containerPort: 10250
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
+---
+# Metrics Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-server
+  namespace: kube-system
+spec:
+  selector:
+    app: metrics-server
+  ports:
+  - port: 443
+    targetPort: 10250
+---
+# Metrics Server APIService
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1beta1.metrics.k8s.io
+spec:
+  service:
+    name: metrics-server
+    namespace: kube-system
+  group: metrics.k8s.io
+  version: v1beta1
+  insecureSkipTLSVerify: true
+  groupPriorityMinimum: 100
+  versionPriority: 100
+---
+# Metrics Server ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: metrics-server
+  namespace: kube-system
+---
+# Metrics Server ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:aggregated-metrics-reader
+rules:
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["*"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:metrics-server
+rules:
+- apiGroups: [""]
+  resources: ["nodes/metrics"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+---
+# Metrics Server RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: metrics-server-auth-reader
+  namespace: kube-system
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+---
+# Metrics Server ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: metrics-server:system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:metrics-server
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:metrics-server
+---
+# Ingress Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-nginx
+---
+# Ingress Controller
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingress-nginx
+  template:
+    metadata:
+      labels:
+        app: ingress-nginx
+    spec:
+      serviceAccountName: ingress-nginx
+      containers:
+      - name: controller
+        image: registry.k8s.io/ingress-nginx/controller:v1.8.1
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+# Ingress Controller Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    nodePort: 30000
+  - name: https
+    port: 443
+    targetPort: 443
+    nodePort: 30001
+  selector:
+    app: ingress-nginx
+---
+# Ingress Resource
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microcontroller-ingress
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - path: /analyzer
+        pathType: Prefix
+        backend:
+          service:
+            name: analyzer
+            port:
+              number: 8000
+      - path: /executor
+        pathType: Prefix
+        backend:
+          service:
+            name: executor
+            port:
+              number: 8000
+      - path: /knowledge
+        pathType: Prefix
+        backend:
+          service:
+            name: knowledge
+            port:
+              number: 8000
+      - path: /llm-service
+        pathType: Prefix
+        backend:
+          service:
+            name: llm-service
+            port:
+              number: 8000
+      - path: /monitor
+        pathType: Prefix
+        backend:
+          service:
+            name: monitor
+            port:
+              number: 8000
+      - path: /planner
+        pathType: Prefix
+        backend:
+          service:
+            name: planner
+            port:
+              number: 8000
+      - path: /load-generator
+        pathType: Prefix
+        backend:
+          service:
+            name: load-generator
+            port:
+              number: 8000
+      - path: /kube-znn
+        pathType: Prefix
+        backend:
+          service:
+            name: kube-znn-simple-fixed
+            port:
+              number: 80

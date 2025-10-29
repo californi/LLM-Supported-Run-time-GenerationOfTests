@@ -1,0 +1,360 @@
+# Microservices v18.0.1 - Core Services Only
+# analyzer: v18.0.1, executor: v18.0.1, knowledge: v18.0.1, llm-service: v18.0.1
+# planner: v18.0.1, monitor: v17.1.15, load-generator: v17.1.15
+
+---
+# ServiceAccounts
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: executor-sa
+  namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: monitor-sa
+  namespace: default
+---
+# ClusterRoles
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: executor-role
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitor-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "nodes", "services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["nodes", "pods"]
+  verbs: ["get", "list"]
+---
+# ClusterRoleBindings
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: executor-binding
+subjects:
+- kind: ServiceAccount
+  name: executor-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: executor-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: monitor-binding
+subjects:
+- kind: ServiceAccount
+  name: monitor-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: monitor-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: default
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+# Analyzer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyzer
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analyzer
+  template:
+    metadata:
+      labels:
+        app: analyzer
+    spec:
+      containers:
+      - name: analyzer
+        image: analyzer:v18.0.2
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: QUALITY_OF_MEDIA
+          value: "800"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Analyzer Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: analyzer
+  namespace: default
+spec:
+  selector:
+    app: analyzer
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Executor Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: executor
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: executor
+  template:
+    metadata:
+      labels:
+        app: executor
+    spec:
+      serviceAccountName: executor-sa
+      containers:
+      - name: executor
+        image: executor:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Executor Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: executor
+  namespace: default
+spec:
+  selector:
+    app: executor
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Knowledge Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowledge
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: knowledge
+  template:
+    metadata:
+      labels:
+        app: knowledge
+    spec:
+      containers:
+      - name: knowledge
+        image: knowledge:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Knowledge Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: knowledge
+  namespace: default
+spec:
+  selector:
+    app: knowledge
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# LLM Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-service
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-service
+  template:
+    metadata:
+      labels:
+        app: llm-service
+    spec:
+      containers:
+      - name: llm-service
+        image: llm-service:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: HF_API_TOKEN
+          value: "YOUR_HF_TOKEN_HERE"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# LLM Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+  namespace: default
+spec:
+  selector:
+    app: llm-service
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+# Planner Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planner
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: planner
+  template:
+    metadata:
+      labels:
+        app: planner
+    spec:
+      containers:
+      - name: planner
+        image: planner:v18.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+# Planner Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: planner
+  namespace: default
+spec:
+  selector:
+    app: planner
+  ports:
+  - port: 8000
+    targetPort: 8000

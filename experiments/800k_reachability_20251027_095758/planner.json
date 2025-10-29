@@ -1,0 +1,422 @@
+{
+  "prompts": [
+    {
+      "prompt": "Generate test plan for kube-znn service based on system metrics.\n\nMETRICS:\n- CPU: 1.5% (within healthy range (<25%))\n- Memory: 4.0% (within healthy range (<30%))  \n- Response Time: 2500.0ms (within critical range (>70ms))\n- Error Rate: 0.0%\n- Throughput: 0.0 req/s\n- Network Latency: 0.0ms\n\nLOAD:\n- Users: 30, Rate: 3.0 req/s, Duration: 120s\n- Pattern: burst (Burst pattern)\n- Current: Moderate load\n\nINFRASTRUCTURE:\n- Pods: 3 active, 0 pending, 0 failed\n- Resources: 6 CPUs, 6GB RAM\n- Target: 5 pods, Quality: 600\n\nANALYSIS:\n- Status: operational\n- Test Type: reachability\n- Priority: high\n- Justification: The high number of failed pods (15) and the extremely high error rate (95%) indicate a problem with reachability. This is the most significant issue based on the provided metrics.\n\nREQUIREMENT: Generate tests ONLY for \"reachability\" type.\n\nTEST GUIDELINES:\n- response_time: latency, performance, resource efficiency, network tests, pod metrics, service endpoints, resource monitoring, CPU/memory usage, response time validation, endpoint accessibility\n- reachability: connectivity, availability, pod status, health checks, service discovery, network policies, pod readiness, service endpoints, DNS resolution, port accessibility\n- load: capacity, scalability, stress, resource limits, throughput, horizontal pod autoscaling, resource utilization, performance degradation, bottleneck identification\n\nGenerate comprehensive test suites based on system state. Create thorough kubectl commands that cover all aspects of the recommended test type for complete system validation.\n\nJSON FORMAT:\n{\n  \"test_cases\": [\n    {\n      \"id\": \"test_1\",\n      \"name\": \"reachability - Basic Validation\", \n      \"description\": \"Comprehensive reachability test covering fundamental system aspects\",\n      \"test_type\": \"reachability\",\n      \"priority\": \"high\",\n      \"expected_result\": \"System demonstrates optimal reachability characteristics\",\n      \"success_criteria\": \"All reachability metrics within acceptable thresholds\",\n      \"failure_indicators\": \"Any reachability metric exceeds critical thresholds\"\n    },\n    {\n      \"id\": \"test_2\",\n      \"name\": \"reachability - Resource Impact Analysis\", \n      \"description\": \"Evaluate reachability behavior under current resource constraints\",\n      \"test_type\": \"reachability\",\n      \"priority\": \"high\",\n      \"expected_result\": \"System maintains reachability performance despite resource limitations\",\n      \"success_criteria\": \"Resource usage remains stable while reachability metrics are optimal\",\n      \"failure_indicators\": \"Resource constraints negatively impact reachability performance\"\n    },\n    {\n      \"id\": \"test_3\",\n      \"name\": \"reachability - Load Pattern Validation\", \n      \"description\": \"Validate reachability characteristics under current load pattern\",\n      \"test_type\": \"reachability\",\n      \"priority\": \"high\",\n      \"expected_result\": \"System handles current load pattern with optimal reachability\",\n      \"success_criteria\": \"reachability remains consistent throughout load pattern\",\n      \"failure_indicators\": \"Load pattern causes reachability degradation\"\n    },\n    {\n      \"id\": \"test_4\",\n      \"name\": \"reachability - Infrastructure Validation\", \n      \"description\": \"Comprehensive reachability validation across all infrastructure components\",\n      \"test_type\": \"reachability\",\n      \"priority\": \"high\",\n      \"expected_result\": \"All infrastructure components demonstrate optimal reachability\",\n      \"success_criteria\": \"Pods, services, and network components show consistent reachability\",\n      \"failure_indicators\": \"Infrastructure components show inconsistent reachability behavior\"\n    }\n  ],\n  \"kubectl_commands\": [\n    {\n      \"id\": \"cmd_1\",\n      \"description\": \"Comprehensive pod status and health validation\",\n      \"command\": \"kubectl get pods -n default | grep kube-znn | head -10\",\n      \"expected_output\": \"All pods running and ready with proper resource allocation\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"All pods show Running status with Ready condition\", \n      \"failure_indicators\": \"Any pod shows Pending, Error, CrashLoopBackOff, or resource issues\",\n      \"oracle_validation\": \"Pod status and resource allocation validation\"\n    },\n    {\n      \"id\": \"cmd_2\",\n      \"description\": \"Service discovery and endpoint connectivity validation\",\n      \"command\": \"kubectl get svc -n default | grep kube-znn\",\n      \"expected_output\": \"Valid cluster IP and active endpoints\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"Service has valid cluster IP with active endpoint subsets\",\n      \"failure_indicators\": \"Service has no cluster IP, pending status, or empty endpoints\",\n      \"oracle_validation\": \"Service discovery and endpoint connectivity validation\"\n    },\n    {\n      \"id\": \"cmd_3\",\n      \"description\": \"Resource utilization and performance metrics analysis\",\n      \"command\": \"kubectl top pods -n default | grep kube-znn\",\n      \"expected_output\": \"CPU and memory usage metrics for all containers\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"Pods show optimal resource utilization within defined limits\",\n      \"failure_indicators\": \"Pods show excessive CPU/memory usage or resource contention\",\n      \"oracle_validation\": \"Resource utilization and performance validation\"\n    },\n    {\n      \"id\": \"cmd_4\",\n      \"description\": \"Comprehensive log analysis for system health\",\n      \"command\": \"kubectl logs -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk '{print $1}') --tail=100 --timestamps\",\n      \"expected_output\": \"Clean logs with proper timestamps and no critical errors\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"No ERROR, FATAL, or critical warnings in recent logs\",\n      \"failure_indicators\": \"Critical errors, warnings, or abnormal log patterns detected\",\n      \"oracle_validation\": \"System health and log analysis validation\"\n    },\n    {\n      \"id\": \"cmd_5\",\n      \"description\": \"Service endpoint accessibility and response validation\",\n      \"command\": \"kubectl exec -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk '{print $1}') -- curl -s -o /dev/null -w '%{http_code} %{time_total}' http://localhost:80/news.php\",\n      \"expected_output\": \"200 with acceptable response time\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"HTTP 200 response with response time within acceptable thresholds\",\n      \"failure_indicators\": \"Non-200 HTTP response, connection failure, or excessive response time\",\n      \"oracle_validation\": \"Service endpoint accessibility and performance validation\"\n    },\n    {\n      \"id\": \"cmd_6\",\n      \"description\": \"Network policy and connectivity validation\",\n      \"command\": \"kubectl get networkpolicies -n default && kubectl get pods -n default | grep kube-znn | awk '{print $6}'\",\n      \"expected_output\": \"Network policies and pod IP addresses\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"Pods have valid IP addresses and network policies are properly configured\",\n      \"failure_indicators\": \"Pods have no IP addresses or network policies are misconfigured\",\n      \"oracle_validation\": \"Network connectivity and policy validation\"\n    },\n    {\n      \"id\": \"cmd_7\",\n      \"description\": \"Resource limits and requests validation\",\n      \"command\": \"kubectl get pods -n default | grep kube-znn | head -1 | awk '{print $1}' | xargs -I {} kubectl describe pod -n default {} | grep -A 10 'Limits\\|Requests'\",\n      \"expected_output\": \"Resource limits and requests configuration\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"Resource limits and requests are properly configured and within acceptable ranges\",\n      \"failure_indicators\": \"Resource limits too low, requests too high, or misconfigured resource allocation\",\n      \"oracle_validation\": \"Resource configuration validation\"\n    }\n  ]\n}\n\nReturn only valid JSON.",
+      "test_plan": {
+        "test_cases": [
+          {
+            "id": "test_1",
+            "name": "reachability - Basic Validation",
+            "description": "Comprehensive reachability test covering fundamental system aspects",
+            "test_type": "reachability",
+            "priority": "high",
+            "expected_result": "System demonstrates optimal reachability characteristics",
+            "success_criteria": "All reachability metrics within acceptable thresholds",
+            "failure_indicators": "Any reachability metric exceeds critical thresholds"
+          },
+          {
+            "id": "test_2",
+            "name": "reachability - Resource Impact Analysis",
+            "description": "Evaluate reachability behavior under current resource constraints",
+            "test_type": "reachability",
+            "priority": "high",
+            "expected_result": "System maintains reachability performance despite resource limitations",
+            "success_criteria": "Resource usage remains stable while reachability metrics are optimal",
+            "failure_indicators": "Resource constraints negatively impact reachability performance"
+          },
+          {
+            "id": "test_3",
+            "name": "reachability - Load Pattern Validation",
+            "description": "Validate reachability characteristics under current load pattern",
+            "test_type": "reachability",
+            "priority": "high",
+            "expected_result": "System handles current load pattern with optimal reachability",
+            "success_criteria": "reachability remains consistent throughout load pattern",
+            "failure_indicators": "Load pattern causes reachability degradation"
+          },
+          {
+            "id": "test_4",
+            "name": "reachability - Infrastructure Validation",
+            "description": "Comprehensive reachability validation across all infrastructure components",
+            "test_type": "reachability",
+            "priority": "high",
+            "expected_result": "All infrastructure components demonstrate optimal reachability",
+            "success_criteria": "Pods, services, and network components show consistent reachability",
+            "failure_indicators": "Infrastructure components show inconsistent reachability behavior"
+          }
+        ],
+        "kubectl_commands": [
+          {
+            "id": "cmd_1",
+            "description": "Comprehensive pod status and health validation",
+            "command": "kubectl get pods -n default | grep kube-znn | head -10",
+            "expected_output": "All pods running and ready with proper resource allocation",
+            "test_type": "reachability",
+            "success_criteria": "All pods show Running status with Ready condition",
+            "failure_indicators": "Any pod shows Pending, Error, CrashLoopBackOff, or resource issues",
+            "oracle_validation": "Pod status and resource allocation validation"
+          },
+          {
+            "id": "cmd_2",
+            "description": "Service discovery and endpoint connectivity validation",
+            "command": "kubectl get svc -n default | grep kube-znn",
+            "expected_output": "Valid cluster IP and active endpoints",
+            "test_type": "reachability",
+            "success_criteria": "Service has valid cluster IP with active endpoint subsets",
+            "failure_indicators": "Service has no cluster IP, pending status, or empty endpoints",
+            "oracle_validation": "Service discovery and endpoint connectivity validation"
+          },
+          {
+            "id": "cmd_3",
+            "description": "Resource utilization and performance metrics analysis",
+            "command": "kubectl top pods -n default | grep kube-znn",
+            "expected_output": "CPU and memory usage metrics for all containers",
+            "test_type": "reachability",
+            "success_criteria": "Pods show optimal resource utilization within defined limits",
+            "failure_indicators": "Pods show excessive CPU/memory usage or resource contention",
+            "oracle_validation": "Resource utilization and performance validation"
+          }
+        ]
+      },
+      "kubectl_commands": [
+        {
+          "id": "cmd_1",
+          "description": "Comprehensive pod status and health validation",
+          "command": "kubectl get pods -n default | grep kube-znn | head -10",
+          "expected_output": "All pods running and ready with proper resource allocation",
+          "test_type": "reachability",
+          "success_criteria": "All pods show Running status with Ready condition",
+          "failure_indicators": "Any pod shows Pending, Error, CrashLoopBackOff, or resource issues",
+          "oracle_validation": "Pod status and resource allocation validation"
+        },
+        {
+          "id": "cmd_2",
+          "description": "Service discovery and endpoint connectivity validation",
+          "command": "kubectl get svc -n default | grep kube-znn",
+          "expected_output": "Valid cluster IP and active endpoints",
+          "test_type": "reachability",
+          "success_criteria": "Service has valid cluster IP with active endpoint subsets",
+          "failure_indicators": "Service has no cluster IP, pending status, or empty endpoints",
+          "oracle_validation": "Service discovery and endpoint connectivity validation"
+        },
+        {
+          "id": "cmd_3",
+          "description": "Resource utilization and performance metrics analysis",
+          "command": "kubectl top pods -n default | grep kube-znn",
+          "expected_output": "CPU and memory usage metrics for all containers",
+          "test_type": "reachability",
+          "success_criteria": "Pods show optimal resource utilization within defined limits",
+          "failure_indicators": "Pods show excessive CPU/memory usage or resource contention",
+          "oracle_validation": "Resource utilization and performance validation"
+        }
+      ],
+      "test_cases": [
+        {
+          "id": "test_1",
+          "name": "reachability - Basic Validation",
+          "description": "Comprehensive reachability test covering fundamental system aspects",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System demonstrates optimal reachability characteristics",
+          "success_criteria": "All reachability metrics within acceptable thresholds",
+          "failure_indicators": "Any reachability metric exceeds critical thresholds"
+        },
+        {
+          "id": "test_2",
+          "name": "reachability - Resource Impact Analysis",
+          "description": "Evaluate reachability behavior under current resource constraints",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System maintains reachability performance despite resource limitations",
+          "success_criteria": "Resource usage remains stable while reachability metrics are optimal",
+          "failure_indicators": "Resource constraints negatively impact reachability performance"
+        },
+        {
+          "id": "test_3",
+          "name": "reachability - Load Pattern Validation",
+          "description": "Validate reachability characteristics under current load pattern",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System handles current load pattern with optimal reachability",
+          "success_criteria": "reachability remains consistent throughout load pattern",
+          "failure_indicators": "Load pattern causes reachability degradation"
+        },
+        {
+          "id": "test_4",
+          "name": "reachability - Infrastructure Validation",
+          "description": "Comprehensive reachability validation across all infrastructure components",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "All infrastructure components demonstrate optimal reachability",
+          "success_criteria": "Pods, services, and network components show consistent reachability",
+          "failure_indicators": "Infrastructure components show inconsistent reachability behavior"
+        }
+      ]
+    }
+  ],
+  "llm_responses": [
+    {
+      "prompt": "Generate test plan for kube-znn service based on system metrics.\n\nMETRICS:\n- CPU: 1.5% (within healthy range (<25%))\n- Memory: 4.0% (within healthy range (<30%))  \n- Response Time: 2500.0ms (within critical range (>70ms))\n- Error Rate: 0.0%\n- Throughput: 0.0 req/s\n- Network Latency: 0.0ms\n\nLOAD:\n- Users: 30, Rate: 3.0 req/s, Duration: 120s\n- Pattern: burst (Burst pattern)\n- Current: Moderate load\n\nINFRASTRUCTURE:\n- Pods: 3 active, 0 pending, 0 failed\n- Resources: 6 CPUs, 6GB RAM\n- Target: 5 pods, Quality: 600\n\nANALYSIS:\n- Status: operational\n- Test Type: reachability\n- Priority: high\n- Justification: The high number of failed pods (15) and the extremely high error rate (95%) indicate a problem with reachability. This is the most significant issue based on the provided metrics.\n\nREQUIREMENT: Generate tests ONLY for \"reachability\" type.\n\nTEST GUIDELINES:\n- response_time: latency, performance, resource efficiency, network tests, pod metrics, service endpoints, resource monitoring, CPU/memory usage, response time validation, endpoint accessibility\n- reachability: connectivity, availability, pod status, health checks, service discovery, network policies, pod readiness, service endpoints, DNS resolution, port accessibility\n- load: capacity, scalability, stress, resource limits, throughput, horizontal pod autoscaling, resource utilization, performance degradation, bottleneck identification\n\nGenerate comprehensive test suites based on system state. Create thorough kubectl commands that cover all aspects of the recommended test type for complete system validation.\n\nJSON FORMAT:\n{\n  \"test_cases\": [\n    {\n      \"id\": \"test_1\",\n      \"name\": \"reachability - Basic Validation\", \n      \"description\": \"Comprehensive reachability test covering fundamental system aspects\",\n      \"test_type\": \"reachability\",\n      \"priority\": \"high\",\n      \"expected_result\": \"System demonstrates optimal reachability characteristics\",\n      \"success_criteria\": \"All reachability metrics within acceptable thresholds\",\n      \"failure_indicators\": \"Any reachability metric exceeds critical thresholds\"\n    },\n    {\n      \"id\": \"test_2\",\n      \"name\": \"reachability - Resource Impact Analysis\", \n      \"description\": \"Evaluate reachability behavior under current resource constraints\",\n      \"test_type\": \"reachability\",\n      \"priority\": \"high\",\n      \"expected_result\": \"System maintains reachability performance despite resource limitations\",\n      \"success_criteria\": \"Resource usage remains stable while reachability metrics are optimal\",\n      \"failure_indicators\": \"Resource constraints negatively impact reachability performance\"\n    },\n    {\n      \"id\": \"test_3\",\n      \"name\": \"reachability - Load Pattern Validation\", \n      \"description\": \"Validate reachability characteristics under current load pattern\",\n      \"test_type\": \"reachability\",\n      \"priority\": \"high\",\n      \"expected_result\": \"System handles current load pattern with optimal reachability\",\n      \"success_criteria\": \"reachability remains consistent throughout load pattern\",\n      \"failure_indicators\": \"Load pattern causes reachability degradation\"\n    },\n    {\n      \"id\": \"test_4\",\n      \"name\": \"reachability - Infrastructure Validation\", \n      \"description\": \"Comprehensive reachability validation across all infrastructure components\",\n      \"test_type\": \"reachability\",\n      \"priority\": \"high\",\n      \"expected_result\": \"All infrastructure components demonstrate optimal reachability\",\n      \"success_criteria\": \"Pods, services, and network components show consistent reachability\",\n      \"failure_indicators\": \"Infrastructure components show inconsistent reachability behavior\"\n    }\n  ],\n  \"kubectl_commands\": [\n    {\n      \"id\": \"cmd_1\",\n      \"description\": \"Comprehensive pod status and health validation\",\n      \"command\": \"kubectl get pods -n default | grep kube-znn | head -10\",\n      \"expected_output\": \"All pods running and ready with proper resource allocation\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"All pods show Running status with Ready condition\", \n      \"failure_indicators\": \"Any pod shows Pending, Error, CrashLoopBackOff, or resource issues\",\n      \"oracle_validation\": \"Pod status and resource allocation validation\"\n    },\n    {\n      \"id\": \"cmd_2\",\n      \"description\": \"Service discovery and endpoint connectivity validation\",\n      \"command\": \"kubectl get svc -n default | grep kube-znn\",\n      \"expected_output\": \"Valid cluster IP and active endpoints\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"Service has valid cluster IP with active endpoint subsets\",\n      \"failure_indicators\": \"Service has no cluster IP, pending status, or empty endpoints\",\n      \"oracle_validation\": \"Service discovery and endpoint connectivity validation\"\n    },\n    {\n      \"id\": \"cmd_3\",\n      \"description\": \"Resource utilization and performance metrics analysis\",\n      \"command\": \"kubectl top pods -n default | grep kube-znn\",\n      \"expected_output\": \"CPU and memory usage metrics for all containers\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"Pods show optimal resource utilization within defined limits\",\n      \"failure_indicators\": \"Pods show excessive CPU/memory usage or resource contention\",\n      \"oracle_validation\": \"Resource utilization and performance validation\"\n    },\n    {\n      \"id\": \"cmd_4\",\n      \"description\": \"Comprehensive log analysis for system health\",\n      \"command\": \"kubectl logs -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk '{print $1}') --tail=100 --timestamps\",\n      \"expected_output\": \"Clean logs with proper timestamps and no critical errors\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"No ERROR, FATAL, or critical warnings in recent logs\",\n      \"failure_indicators\": \"Critical errors, warnings, or abnormal log patterns detected\",\n      \"oracle_validation\": \"System health and log analysis validation\"\n    },\n    {\n      \"id\": \"cmd_5\",\n      \"description\": \"Service endpoint accessibility and response validation\",\n      \"command\": \"kubectl exec -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk '{print $1}') -- curl -s -o /dev/null -w '%{http_code} %{time_total}' http://localhost:80/news.php\",\n      \"expected_output\": \"200 with acceptable response time\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"HTTP 200 response with response time within acceptable thresholds\",\n      \"failure_indicators\": \"Non-200 HTTP response, connection failure, or excessive response time\",\n      \"oracle_validation\": \"Service endpoint accessibility and performance validation\"\n    },\n    {\n      \"id\": \"cmd_6\",\n      \"description\": \"Network policy and connectivity validation\",\n      \"command\": \"kubectl get networkpolicies -n default && kubectl get pods -n default | grep kube-znn | awk '{print $6}'\",\n      \"expected_output\": \"Network policies and pod IP addresses\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"Pods have valid IP addresses and network policies are properly configured\",\n      \"failure_indicators\": \"Pods have no IP addresses or network policies are misconfigured\",\n      \"oracle_validation\": \"Network connectivity and policy validation\"\n    },\n    {\n      \"id\": \"cmd_7\",\n      \"description\": \"Resource limits and requests validation\",\n      \"command\": \"kubectl get pods -n default | grep kube-znn | head -1 | awk '{print $1}' | xargs -I {} kubectl describe pod -n default {} | grep -A 10 'Limits\\|Requests'\",\n      \"expected_output\": \"Resource limits and requests configuration\",\n      \"test_type\": \"reachability\",\n      \"success_criteria\": \"Resource limits and requests are properly configured and within acceptable ranges\",\n      \"failure_indicators\": \"Resource limits too low, requests too high, or misconfigured resource allocation\",\n      \"oracle_validation\": \"Resource configuration validation\"\n    }\n  ]\n}\n\nReturn only valid JSON.",
+      "test_plan": {
+        "test_cases": [
+          {
+            "id": "test_1",
+            "name": "reachability - Basic Validation",
+            "description": "Comprehensive reachability test covering fundamental system aspects",
+            "test_type": "reachability",
+            "priority": "high",
+            "expected_result": "System demonstrates optimal reachability characteristics",
+            "success_criteria": "All reachability metrics within acceptable thresholds",
+            "failure_indicators": "Any reachability metric exceeds critical thresholds"
+          },
+          {
+            "id": "test_2",
+            "name": "reachability - Resource Impact Analysis",
+            "description": "Evaluate reachability behavior under current resource constraints",
+            "test_type": "reachability",
+            "priority": "high",
+            "expected_result": "System maintains reachability performance despite resource limitations",
+            "success_criteria": "Resource usage remains stable while reachability metrics are optimal",
+            "failure_indicators": "Resource constraints negatively impact reachability performance"
+          },
+          {
+            "id": "test_3",
+            "name": "reachability - Load Pattern Validation",
+            "description": "Validate reachability characteristics under current load pattern",
+            "test_type": "reachability",
+            "priority": "high",
+            "expected_result": "System handles current load pattern with optimal reachability",
+            "success_criteria": "reachability remains consistent throughout load pattern",
+            "failure_indicators": "Load pattern causes reachability degradation"
+          },
+          {
+            "id": "test_4",
+            "name": "reachability - Infrastructure Validation",
+            "description": "Comprehensive reachability validation across all infrastructure components",
+            "test_type": "reachability",
+            "priority": "high",
+            "expected_result": "All infrastructure components demonstrate optimal reachability",
+            "success_criteria": "Pods, services, and network components show consistent reachability",
+            "failure_indicators": "Infrastructure components show inconsistent reachability behavior"
+          }
+        ],
+        "kubectl_commands": [
+          {
+            "id": "cmd_1",
+            "description": "Comprehensive pod status and health validation",
+            "command": "kubectl get pods -n default | grep kube-znn | head -10",
+            "expected_output": "All pods running and ready with proper resource allocation",
+            "test_type": "reachability",
+            "success_criteria": "All pods show Running status with Ready condition",
+            "failure_indicators": "Any pod shows Pending, Error, CrashLoopBackOff, or resource issues",
+            "oracle_validation": "Pod status and resource allocation validation"
+          },
+          {
+            "id": "cmd_2",
+            "description": "Service discovery and endpoint connectivity validation",
+            "command": "kubectl get svc -n default | grep kube-znn",
+            "expected_output": "Valid cluster IP and active endpoints",
+            "test_type": "reachability",
+            "success_criteria": "Service has valid cluster IP with active endpoint subsets",
+            "failure_indicators": "Service has no cluster IP, pending status, or empty endpoints",
+            "oracle_validation": "Service discovery and endpoint connectivity validation"
+          },
+          {
+            "id": "cmd_3",
+            "description": "Resource utilization and performance metrics analysis",
+            "command": "kubectl top pods -n default | grep kube-znn",
+            "expected_output": "CPU and memory usage metrics for all containers",
+            "test_type": "reachability",
+            "success_criteria": "Pods show optimal resource utilization within defined limits",
+            "failure_indicators": "Pods show excessive CPU/memory usage or resource contention",
+            "oracle_validation": "Resource utilization and performance validation"
+          }
+        ]
+      },
+      "kubectl_commands": [
+        {
+          "id": "cmd_1",
+          "description": "Comprehensive pod status and health validation",
+          "command": "kubectl get pods -n default | grep kube-znn | head -10",
+          "expected_output": "All pods running and ready with proper resource allocation",
+          "test_type": "reachability",
+          "success_criteria": "All pods show Running status with Ready condition",
+          "failure_indicators": "Any pod shows Pending, Error, CrashLoopBackOff, or resource issues",
+          "oracle_validation": "Pod status and resource allocation validation"
+        },
+        {
+          "id": "cmd_2",
+          "description": "Service discovery and endpoint connectivity validation",
+          "command": "kubectl get svc -n default | grep kube-znn",
+          "expected_output": "Valid cluster IP and active endpoints",
+          "test_type": "reachability",
+          "success_criteria": "Service has valid cluster IP with active endpoint subsets",
+          "failure_indicators": "Service has no cluster IP, pending status, or empty endpoints",
+          "oracle_validation": "Service discovery and endpoint connectivity validation"
+        },
+        {
+          "id": "cmd_3",
+          "description": "Resource utilization and performance metrics analysis",
+          "command": "kubectl top pods -n default | grep kube-znn",
+          "expected_output": "CPU and memory usage metrics for all containers",
+          "test_type": "reachability",
+          "success_criteria": "Pods show optimal resource utilization within defined limits",
+          "failure_indicators": "Pods show excessive CPU/memory usage or resource contention",
+          "oracle_validation": "Resource utilization and performance validation"
+        }
+      ],
+      "test_cases": [
+        {
+          "id": "test_1",
+          "name": "reachability - Basic Validation",
+          "description": "Comprehensive reachability test covering fundamental system aspects",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System demonstrates optimal reachability characteristics",
+          "success_criteria": "All reachability metrics within acceptable thresholds",
+          "failure_indicators": "Any reachability metric exceeds critical thresholds"
+        },
+        {
+          "id": "test_2",
+          "name": "reachability - Resource Impact Analysis",
+          "description": "Evaluate reachability behavior under current resource constraints",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System maintains reachability performance despite resource limitations",
+          "success_criteria": "Resource usage remains stable while reachability metrics are optimal",
+          "failure_indicators": "Resource constraints negatively impact reachability performance"
+        },
+        {
+          "id": "test_3",
+          "name": "reachability - Load Pattern Validation",
+          "description": "Validate reachability characteristics under current load pattern",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System handles current load pattern with optimal reachability",
+          "success_criteria": "reachability remains consistent throughout load pattern",
+          "failure_indicators": "Load pattern causes reachability degradation"
+        },
+        {
+          "id": "test_4",
+          "name": "reachability - Infrastructure Validation",
+          "description": "Comprehensive reachability validation across all infrastructure components",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "All infrastructure components demonstrate optimal reachability",
+          "success_criteria": "Pods, services, and network components show consistent reachability",
+          "failure_indicators": "Infrastructure components show inconsistent reachability behavior"
+        }
+      ]
+    }
+  ],
+  "test_plans": [
+    {
+      "test_cases": [
+        {
+          "id": "test_1",
+          "name": "reachability - Basic Validation",
+          "description": "Comprehensive reachability test covering fundamental system aspects",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System demonstrates optimal reachability characteristics",
+          "success_criteria": "All reachability metrics within acceptable thresholds",
+          "failure_indicators": "Any reachability metric exceeds critical thresholds"
+        },
+        {
+          "id": "test_2",
+          "name": "reachability - Resource Impact Analysis",
+          "description": "Evaluate reachability behavior under current resource constraints",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System maintains reachability performance despite resource limitations",
+          "success_criteria": "Resource usage remains stable while reachability metrics are optimal",
+          "failure_indicators": "Resource constraints negatively impact reachability performance"
+        },
+        {
+          "id": "test_3",
+          "name": "reachability - Load Pattern Validation",
+          "description": "Validate reachability characteristics under current load pattern",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "System handles current load pattern with optimal reachability",
+          "success_criteria": "reachability remains consistent throughout load pattern",
+          "failure_indicators": "Load pattern causes reachability degradation"
+        },
+        {
+          "id": "test_4",
+          "name": "reachability - Infrastructure Validation",
+          "description": "Comprehensive reachability validation across all infrastructure components",
+          "test_type": "reachability",
+          "priority": "high",
+          "expected_result": "All infrastructure components demonstrate optimal reachability",
+          "success_criteria": "Pods, services, and network components show consistent reachability",
+          "failure_indicators": "Infrastructure components show inconsistent reachability behavior"
+        }
+      ],
+      "kubectl_commands": [
+        {
+          "id": "cmd_1",
+          "description": "Comprehensive pod status and health validation",
+          "command": "kubectl get pods -n default | grep kube-znn | head -10",
+          "expected_output": "All pods running and ready with proper resource allocation",
+          "test_type": "reachability",
+          "success_criteria": "All pods show Running status with Ready condition",
+          "failure_indicators": "Any pod shows Pending, Error, CrashLoopBackOff, or resource issues",
+          "oracle_validation": "Pod status and resource allocation validation"
+        },
+        {
+          "id": "cmd_2",
+          "description": "Service discovery and endpoint connectivity validation",
+          "command": "kubectl get svc -n default | grep kube-znn",
+          "expected_output": "Valid cluster IP and active endpoints",
+          "test_type": "reachability",
+          "success_criteria": "Service has valid cluster IP with active endpoint subsets",
+          "failure_indicators": "Service has no cluster IP, pending status, or empty endpoints",
+          "oracle_validation": "Service discovery and endpoint connectivity validation"
+        },
+        {
+          "id": "cmd_3",
+          "description": "Resource utilization and performance metrics analysis",
+          "command": "kubectl top pods -n default | grep kube-znn",
+          "expected_output": "CPU and memory usage metrics for all containers",
+          "test_type": "reachability",
+          "success_criteria": "Pods show optimal resource utilization within defined limits",
+          "failure_indicators": "Pods show excessive CPU/memory usage or resource contention",
+          "oracle_validation": "Resource utilization and performance validation"
+        }
+      ]
+    }
+  ],
+  "kubectl_commands": [
+    {
+      "id": "cmd_1",
+      "description": "Comprehensive pod status and health validation",
+      "command": "kubectl get pods -n default | grep kube-znn | head -10",
+      "expected_output": "All pods running and ready with proper resource allocation",
+      "test_type": "reachability",
+      "success_criteria": "All pods show Running status with Ready condition",
+      "failure_indicators": "Any pod shows Pending, Error, CrashLoopBackOff, or resource issues",
+      "oracle_validation": "Pod status and resource allocation validation"
+    },
+    {
+      "id": "cmd_2",
+      "description": "Service discovery and endpoint connectivity validation",
+      "command": "kubectl get svc -n default | grep kube-znn",
+      "expected_output": "Valid cluster IP and active endpoints",
+      "test_type": "reachability",
+      "success_criteria": "Service has valid cluster IP with active endpoint subsets",
+      "failure_indicators": "Service has no cluster IP, pending status, or empty endpoints",
+      "oracle_validation": "Service discovery and endpoint connectivity validation"
+    },
+    {
+      "id": "cmd_3",
+      "description": "Resource utilization and performance metrics analysis",
+      "command": "kubectl top pods -n default | grep kube-znn",
+      "expected_output": "CPU and memory usage metrics for all containers",
+      "test_type": "reachability",
+      "success_criteria": "Pods show optimal resource utilization within defined limits",
+      "failure_indicators": "Pods show excessive CPU/memory usage or resource contention",
+      "oracle_validation": "Resource utilization and performance validation"
+    }
+  ]
+}

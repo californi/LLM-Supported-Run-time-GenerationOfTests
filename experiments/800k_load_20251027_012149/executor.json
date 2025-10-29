@@ -1,0 +1,336 @@
+{
+  "kubectl_batches": [],
+  "execution_results": [
+    {
+      "experiment_id": "experiment_load_1761538774",
+      "run_id": "run_001",
+      "execution_timestamp": "2025-10-27T04:20:18.960877",
+      "success": false,
+      "executed_commands": [
+        {
+          "id": "cmd_1",
+          "description": "Comprehensive pod status and health validation",
+          "command": "kubectl get pods -n default | grep kube-znn | head -10",
+          "test_type": "load"
+        },
+        {
+          "id": "cmd_2",
+          "description": "Service discovery and endpoint connectivity validation",
+          "command": "kubectl get svc -n default | grep kube-znn",
+          "test_type": "load"
+        },
+        {
+          "id": "cmd_3",
+          "description": "Resource utilization and performance metrics analysis",
+          "command": "kubectl top pods -n default | grep kube-znn",
+          "test_type": "load"
+        },
+        {
+          "id": "cmd_4",
+          "description": "Comprehensive log analysis for system health",
+          "command": "kubectl logs -n default -l app=kube-znn-simple-fixed-simple-fixed --tail=100 --timestamps || kubectl logs -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk",
+          "test_type": "load"
+        },
+        {
+          "id": "cmd_5",
+          "description": "Service endpoint accessibility and response validation",
+          "command": "kubectl exec -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk",
+          "test_type": "load"
+        },
+        {
+          "id": "cmd_6",
+          "description": "Network policy and connectivity validation",
+          "command": "kubectl get networkpolicies -n default && kubectl get pods -n default -l app=kube-znn-simple-fixed-simple-fixed -o jsonpath=",
+          "test_type": "load"
+        },
+        {
+          "id": "cmd_7",
+          "description": "Resource limits and requests validation",
+          "command": "kubectl describe pods -n default -l app=kube-znn-simple-fixed-simple-fixed | grep -A 10",
+          "test_type": "load"
+        }
+      ],
+      "execution_results": [
+        {
+          "command_id": "cmd_1",
+          "command": "kubectl get pods -n default | grep kube-znn | head -10",
+          "description": "Comprehensive pod status and health validation",
+          "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+          "execution_result": {
+            "command": "kubectl get pods -n default | grep kube-znn | head -10",
+            "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+            "returncode": 0,
+            "stdout": "kube-znn-nginx-fd4b57cfd-grp6m    1/1     Running            5 (3h25m ago)   31h\n",
+            "stderr": "",
+            "success": true,
+            "timestamp": "2025-10-27T04:20:15.561127"
+          },
+          "oracle_validation": {
+            "command_executed": true,
+            "output_received": true,
+            "error_detected": false,
+            "success": true,
+            "validation_details": {
+              "reason": "Command executed successfully with output"
+            }
+          },
+          "success": true,
+          "timestamp": "2025-10-27T04:20:15.567137"
+        },
+        {
+          "command_id": "cmd_2",
+          "command": "kubectl get svc -n default | grep kube-znn",
+          "description": "Service discovery and endpoint connectivity validation",
+          "detailed_description": "Executes kubectl command: kubectl get svc -n default | grep kube-znn. This command performs Kubernetes cluster operations for testing and validation purposes.",
+          "execution_result": {
+            "command": "kubectl get svc -n default | grep kube-znn",
+            "detailed_description": "Executes kubectl command: kubectl get svc -n default | grep kube-znn. This command performs Kubernetes cluster operations for testing and validation purposes.",
+            "returncode": 0,
+            "stdout": "kube-znn-nginx   ClusterIP   10.96.173.106   <none>        80/TCP     31h\n",
+            "stderr": "",
+            "success": true,
+            "timestamp": "2025-10-27T04:20:16.265430"
+          },
+          "oracle_validation": {
+            "command_executed": true,
+            "output_received": true,
+            "error_detected": false,
+            "success": true,
+            "validation_details": {
+              "reason": "Command executed successfully with output"
+            }
+          },
+          "success": true,
+          "timestamp": "2025-10-27T04:20:16.270207"
+        },
+        {
+          "command_id": "cmd_3",
+          "command": "kubectl top pods -n default | grep kube-znn",
+          "description": "Resource utilization and performance metrics analysis",
+          "detailed_description": "Monitors real-time resource usage (CPU and memory) of ZNN pods. This command provides current resource consumption metrics to assess system performance and identify potential bottlenecks during testing.",
+          "execution_result": {
+            "command": "kubectl top pods -n default | grep kube-znn",
+            "detailed_description": "Monitors real-time resource usage (CPU and memory) of ZNN pods. This command provides current resource consumption metrics to assess system performance and identify potential bottlenecks during testing.",
+            "returncode": 0,
+            "stdout": "kube-znn-nginx-fd4b57cfd-grp6m   1m           11Mi            \n",
+            "stderr": "",
+            "success": true,
+            "timestamp": "2025-10-27T04:20:16.876858"
+          },
+          "oracle_validation": {
+            "command_executed": true,
+            "output_received": true,
+            "error_detected": false,
+            "success": true,
+            "validation_details": {
+              "reason": "Command executed successfully with output"
+            }
+          },
+          "success": true,
+          "timestamp": "2025-10-27T04:20:16.882620"
+        },
+        {
+          "command_id": "cmd_4",
+          "command": "kubectl logs -n default -l app=kube-znn-simple-fixed-simple-fixed --tail=100 --timestamps || kubectl logs -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk",
+          "description": "Comprehensive log analysis for system health",
+          "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+          "execution_result": {
+            "command": "kubectl logs -n default -l app=kube-znn-simple-fixed-simple-fixed --tail=100 --timestamps || kubectl logs -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk",
+            "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+            "returncode": 2,
+            "stdout": "",
+            "stderr": "/bin/sh: 1: Syntax error: end of file unexpected (expecting \")\")\n",
+            "success": false,
+            "timestamp": "2025-10-27T04:20:16.884152"
+          },
+          "oracle_validation": {
+            "command_executed": false,
+            "output_received": false,
+            "error_detected": true,
+            "success": false,
+            "validation_details": {
+              "reason": "Command execution failed"
+            }
+          },
+          "success": false,
+          "timestamp": "2025-10-27T04:20:16.887337"
+        },
+        {
+          "command_id": "cmd_5",
+          "command": "kubectl exec -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk",
+          "description": "Service endpoint accessibility and response validation",
+          "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+          "execution_result": {
+            "command": "kubectl exec -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk",
+            "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+            "returncode": 2,
+            "stdout": "",
+            "stderr": "/bin/sh: 1: Syntax error: end of file unexpected (expecting \")\")\n",
+            "success": false,
+            "timestamp": "2025-10-27T04:20:16.933679"
+          },
+          "oracle_validation": {
+            "command_executed": false,
+            "output_received": false,
+            "error_detected": true,
+            "success": false,
+            "validation_details": {
+              "reason": "Command execution failed"
+            }
+          },
+          "success": false,
+          "timestamp": "2025-10-27T04:20:16.938574"
+        },
+        {
+          "command_id": "cmd_6",
+          "command": "kubectl get networkpolicies -n default && kubectl get pods -n default -l app=kube-znn-simple-fixed-simple-fixed -o jsonpath=",
+          "description": "Network policy and connectivity validation",
+          "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+          "execution_result": {
+            "command": "kubectl get networkpolicies -n default && kubectl get pods -n default -l app=kube-znn-simple-fixed-simple-fixed -o jsonpath=",
+            "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+            "returncode": 1,
+            "stdout": "",
+            "stderr": "No resources found in default namespace.\nerror: template format specified but no template given\n",
+            "success": false,
+            "timestamp": "2025-10-27T04:20:18.261539"
+          },
+          "oracle_validation": {
+            "command_executed": false,
+            "output_received": false,
+            "error_detected": true,
+            "success": false,
+            "validation_details": {
+              "reason": "Command execution failed"
+            }
+          },
+          "success": false,
+          "timestamp": "2025-10-27T04:20:18.267733"
+        },
+        {
+          "command_id": "cmd_7",
+          "command": "kubectl describe pods -n default -l app=kube-znn-simple-fixed-simple-fixed | grep -A 10",
+          "description": "Resource limits and requests validation",
+          "detailed_description": "Provides detailed information about ZNN pods including events, conditions, and resource specifications. This command helps diagnose issues and verify pod configuration during testing.",
+          "execution_result": {
+            "command": "kubectl describe pods -n default -l app=kube-znn-simple-fixed-simple-fixed | grep -A 10",
+            "detailed_description": "Provides detailed information about ZNN pods including events, conditions, and resource specifications. This command helps diagnose issues and verify pod configuration during testing.",
+            "returncode": 2,
+            "stdout": "",
+            "stderr": "Usage: grep [OPTION]... PATTERNS [FILE]...\nTry 'grep --help' for more information.\nNo resources found in default namespace.\n",
+            "success": false,
+            "timestamp": "2025-10-27T04:20:18.953962"
+          },
+          "oracle_validation": {
+            "command_executed": false,
+            "output_received": false,
+            "error_detected": true,
+            "success": false,
+            "validation_details": {
+              "reason": "Command execution failed"
+            }
+          },
+          "success": false,
+          "timestamp": "2025-10-27T04:20:18.960684"
+        }
+      ],
+      "test_case_results": [
+        {
+          "test_case_id": "test_1",
+          "test_case_name": "load - Basic Validation",
+          "commands_executed": 0,
+          "commands_successful": 0,
+          "success": true,
+          "execution_details": [],
+          "timestamp": "2025-10-27T04:20:18.960838"
+        },
+        {
+          "test_case_id": "test_2",
+          "test_case_name": "load - Resource Impact Analysis",
+          "commands_executed": 0,
+          "commands_successful": 0,
+          "success": true,
+          "execution_details": [],
+          "timestamp": "2025-10-27T04:20:18.960856"
+        },
+        {
+          "test_case_id": "test_3",
+          "test_case_name": "load - Load Pattern Validation",
+          "commands_executed": 0,
+          "commands_successful": 0,
+          "success": true,
+          "execution_details": [],
+          "timestamp": "2025-10-27T04:20:18.960859"
+        },
+        {
+          "test_case_id": "test_4",
+          "test_case_name": "load - Infrastructure Validation",
+          "commands_executed": 0,
+          "commands_successful": 0,
+          "success": true,
+          "execution_details": [],
+          "timestamp": "2025-10-27T04:20:18.960862"
+        }
+      ],
+      "summary": {
+        "total_commands": 7,
+        "successful_commands": 3,
+        "failed_commands": 4,
+        "success_rate": 42.857142857142854,
+        "oracle_validations_passed": 3,
+        "oracle_validations_failed": 4,
+        "overall_success": false
+      },
+      "detailed_descriptions": {
+        "commands_with_descriptions": [
+          {
+            "command_id": "cmd_1",
+            "command": "kubectl get pods -n default | grep kube-znn | head -10",
+            "description": "Comprehensive pod status and health validation",
+            "detailed_description": ""
+          },
+          {
+            "command_id": "cmd_2",
+            "command": "kubectl get svc -n default | grep kube-znn",
+            "description": "Service discovery and endpoint connectivity validation",
+            "detailed_description": ""
+          },
+          {
+            "command_id": "cmd_3",
+            "command": "kubectl top pods -n default | grep kube-znn",
+            "description": "Resource utilization and performance metrics analysis",
+            "detailed_description": ""
+          },
+          {
+            "command_id": "cmd_4",
+            "command": "kubectl logs -n default -l app=kube-znn-simple-fixed-simple-fixed --tail=100 --timestamps || kubectl logs -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk",
+            "description": "Comprehensive log analysis for system health",
+            "detailed_description": ""
+          },
+          {
+            "command_id": "cmd_5",
+            "command": "kubectl exec -n default $(kubectl get pods -n default | grep kube-znn | head -1 | awk",
+            "description": "Service endpoint accessibility and response validation",
+            "detailed_description": ""
+          },
+          {
+            "command_id": "cmd_6",
+            "command": "kubectl get networkpolicies -n default && kubectl get pods -n default -l app=kube-znn-simple-fixed-simple-fixed -o jsonpath=",
+            "description": "Network policy and connectivity validation",
+            "detailed_description": ""
+          },
+          {
+            "command_id": "cmd_7",
+            "command": "kubectl describe pods -n default -l app=kube-znn-simple-fixed-simple-fixed | grep -A 10",
+            "description": "Resource limits and requests validation",
+            "detailed_description": ""
+          }
+        ]
+      },
+      "source": "executor_service",
+      "service_version": "v10.3",
+      "stored_timestamp": "2025-10-27T04:20:18.966439"
+    }
+  ],
+  "test_results": []
+}

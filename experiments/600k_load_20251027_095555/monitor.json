@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-10-27T09:54:10.155473",
+  "scenario": "load",
+  "description": "Load Scenario - 600k model",
+  "metrics": {
+    "cpu_usage": 80.8,
+    "memory_usage": 82.5,
+    "response_time": 1504.0,
+    "error_rate": 2.6,
+    "throughput": 150,
+    "network_latency": 1,
+    "active_pods": 9,
+    "failed_pods": 0,
+    "pending_pods": 0
+  },
+  "media_quality": "600k"
+}

@@ -1,0 +1,199 @@
+{
+  "kubectl_batches": [],
+  "execution_results": [
+    {
+      "experiment_id": "experiment_load_1761569650",
+      "run_id": "run_001",
+      "execution_timestamp": "2025-10-27T12:54:24.938412",
+      "success": true,
+      "executed_commands": [
+        {
+          "id": "cmd_1",
+          "description": "Comprehensive pod status and health validation",
+          "command": "kubectl get pods -n default | grep kube-znn | head -10",
+          "expected_output": "All pods running and ready with proper resource allocation",
+          "test_type": "load",
+          "success_criteria": "All pods show Running status with Ready condition",
+          "failure_indicators": "Any pod shows Pending, Error, CrashLoopBackOff, or resource issues",
+          "oracle_validation": "Pod status and resource allocation validation"
+        },
+        {
+          "id": "cmd_2",
+          "description": "Service discovery and endpoint connectivity validation",
+          "command": "kubectl get svc -n default | grep kube-znn",
+          "expected_output": "Valid cluster IP and active endpoints",
+          "test_type": "load",
+          "success_criteria": "Service has valid cluster IP with active endpoint subsets",
+          "failure_indicators": "Service has no cluster IP, pending status, or empty endpoints",
+          "oracle_validation": "Service discovery and endpoint connectivity validation"
+        },
+        {
+          "id": "cmd_3",
+          "description": "Resource utilization and performance metrics analysis",
+          "command": "kubectl top pods -n default | grep kube-znn",
+          "expected_output": "CPU and memory usage metrics for all containers",
+          "test_type": "load",
+          "success_criteria": "Pods show optimal resource utilization within defined limits",
+          "failure_indicators": "Pods show excessive CPU/memory usage or resource contention",
+          "oracle_validation": "Resource utilization and performance validation"
+        }
+      ],
+      "execution_results": [
+        {
+          "command_id": "cmd_1",
+          "command": "kubectl get pods -n default | grep kube-znn | head -10",
+          "description": "Comprehensive pod status and health validation",
+          "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+          "execution_result": {
+            "command": "kubectl get pods -n default | grep kube-znn | head -10",
+            "detailed_description": "Retrieves current status of ZNN pods including their state (Running, Pending, Error) and readiness indicators. This command verifies that all ZNN pods are healthy and accessible.",
+            "returncode": 0,
+            "stdout": "kube-znn-nginx-fd4b57cfd-grp6m    1/1     Running            7 (10m ago)   40h\n",
+            "stderr": "",
+            "success": true,
+            "timestamp": "2025-10-27T12:54:23.441303"
+          },
+          "oracle_validation": {
+            "command_executed": true,
+            "output_received": true,
+            "error_detected": false,
+            "success": true,
+            "validation_details": {
+              "oracle_validation": true,
+              "reason": "Oracle validation passed"
+            }
+          },
+          "success": true,
+          "timestamp": "2025-10-27T12:54:23.448360"
+        },
+        {
+          "command_id": "cmd_2",
+          "command": "kubectl get svc -n default | grep kube-znn",
+          "description": "Service discovery and endpoint connectivity validation",
+          "detailed_description": "Executes kubectl command: kubectl get svc -n default | grep kube-znn. This command performs Kubernetes cluster operations for testing and validation purposes.",
+          "execution_result": {
+            "command": "kubectl get svc -n default | grep kube-znn",
+            "detailed_description": "Executes kubectl command: kubectl get svc -n default | grep kube-znn. This command performs Kubernetes cluster operations for testing and validation purposes.",
+            "returncode": 0,
+            "stdout": "kube-znn-nginx   ClusterIP   10.96.173.106   <none>        80/TCP     40h\n",
+            "stderr": "",
+            "success": true,
+            "timestamp": "2025-10-27T12:54:24.294207"
+          },
+          "oracle_validation": {
+            "command_executed": true,
+            "output_received": true,
+            "error_detected": false,
+            "success": true,
+            "validation_details": {
+              "oracle_validation": true,
+              "reason": "Oracle validation passed"
+            }
+          },
+          "success": true,
+          "timestamp": "2025-10-27T12:54:24.301120"
+        },
+        {
+          "command_id": "cmd_3",
+          "command": "kubectl top pods -n default | grep kube-znn",
+          "description": "Resource utilization and performance metrics analysis",
+          "detailed_description": "Monitors real-time resource usage (CPU and memory) of ZNN pods. This command provides current resource consumption metrics to assess system performance and identify potential bottlenecks during testing.",
+          "execution_result": {
+            "command": "kubectl top pods -n default | grep kube-znn",
+            "detailed_description": "Monitors real-time resource usage (CPU and memory) of ZNN pods. This command provides current resource consumption metrics to assess system performance and identify potential bottlenecks during testing.",
+            "returncode": 0,
+            "stdout": "kube-znn-nginx-fd4b57cfd-grp6m   1m           11Mi            \n",
+            "stderr": "",
+            "success": true,
+            "timestamp": "2025-10-27T12:54:24.934118"
+          },
+          "oracle_validation": {
+            "command_executed": true,
+            "output_received": true,
+            "error_detected": false,
+            "success": true,
+            "validation_details": {
+              "oracle_validation": true,
+              "reason": "Oracle validation passed"
+            }
+          },
+          "success": true,
+          "timestamp": "2025-10-27T12:54:24.938223"
+        }
+      ],
+      "test_case_results": [
+        {
+          "test_case_id": "test_1",
+          "test_case_name": "load - Basic Validation",
+          "commands_executed": 0,
+          "commands_successful": 0,
+          "success": true,
+          "execution_details": [],
+          "timestamp": "2025-10-27T12:54:24.938371"
+        },
+        {
+          "test_case_id": "test_2",
+          "test_case_name": "load - Resource Impact Analysis",
+          "commands_executed": 0,
+          "commands_successful": 0,
+          "success": true,
+          "execution_details": [],
+          "timestamp": "2025-10-27T12:54:24.938391"
+        },
+        {
+          "test_case_id": "test_3",
+          "test_case_name": "load - Load Pattern Validation",
+          "commands_executed": 0,
+          "commands_successful": 0,
+          "success": true,
+          "execution_details": [],
+          "timestamp": "2025-10-27T12:54:24.938393"
+        },
+        {
+          "test_case_id": "test_4",
+          "test_case_name": "load - Infrastructure Validation",
+          "commands_executed": 0,
+          "commands_successful": 0,
+          "success": true,
+          "execution_details": [],
+          "timestamp": "2025-10-27T12:54:24.938395"
+        }
+      ],
+      "summary": {
+        "total_commands": 3,
+        "successful_commands": 3,
+        "failed_commands": 0,
+        "success_rate": 100.0,
+        "oracle_validations_passed": 3,
+        "oracle_validations_failed": 0,
+        "overall_success": true
+      },
+      "detailed_descriptions": {
+        "commands_with_descriptions": [
+          {
+            "command_id": "cmd_1",
+            "command": "kubectl get pods -n default | grep kube-znn | head -10",
+            "description": "Comprehensive pod status and health validation",
+            "detailed_description": ""
+          },
+          {
+            "command_id": "cmd_2",
+            "command": "kubectl get svc -n default | grep kube-znn",
+            "description": "Service discovery and endpoint connectivity validation",
+            "detailed_description": ""
+          },
+          {
+            "command_id": "cmd_3",
+            "command": "kubectl top pods -n default | grep kube-znn",
+            "description": "Resource utilization and performance metrics analysis",
+            "detailed_description": ""
+          }
+        ]
+      },
+      "source": "executor_service",
+      "service_version": "v10.3",
+      "stored_timestamp": "2025-10-27T12:54:24.942900"
+    }
+  ],
+  "test_results": []
+}

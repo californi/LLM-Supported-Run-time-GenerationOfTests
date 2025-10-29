@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  labels:
+    app: load-generator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+      - name: load-generator
+        image: load-generator:v17.8.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: LOAD_GENERATOR_CONCURRENT_USERS
+          value: "25"
+        - name: LOAD_GENERATOR_REQUEST_RATE
+          value: "20.0"
+        - name: LOAD_GENERATOR_SESSION_DURATION
+          value: "180"
+        - name: LOAD_GENERATOR_LOAD_PATTERN
+          value: "steady"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: load-generator
+  labels:
+    app: load-generator
+spec:
+  selector:
+    app: load-generator
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
